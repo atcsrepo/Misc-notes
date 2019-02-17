@@ -49,7 +49,7 @@ RUN apk add --no-cache --virtual .gyp \
 
 Moreover, if needed, multiple dockerfiles may be set up for different environments:
 
-$docker build -t test -f Dockerfile.dev .
+`$docker build -t test -f Dockerfile.dev .`
 
 At this point the container can be spun up.
 
@@ -77,6 +77,9 @@ where -\-rm is for [clean up](https://docs.docker.com/engine/reference/run/#clea
 Other useful commands:
 
 Remove all exited containers: `docker rm ($docker ps -a -q)`
+
 Remove all containers: `docker rm ($docker ps -a -q) -factors`
+
 Remove all non-attached volumes: `docker volume prune`
+
 Remove all images with <none> tag: `docker image rm $(docker images -f "dangling=true" -q)`

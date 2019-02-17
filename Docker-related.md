@@ -27,7 +27,11 @@ a request on port[ 80 of the local machine should forward to port 3000](https://
 
 This is due to a [loopback problem](https://blog.sixeyed.com/published-ports-on-windows-containers-dont-do-loopback/ "loopback problem") with older versions of Windows.
 
+On a final note, if trying to access the docker container with a different machine (i.e. not the host machine) on the same network, make sure to add an additional port forward using step 3 from above, or through the virtual machine:
 
+VirtualBox > <Machine name> > Settings > Network > Adapter 1 > Advanced Port forwarding
+
+otherwise, the external machine will not be able to connect.
 ----------------
 ### Building and running images:
 

@@ -1,4 +1,4 @@
-# Setting up a local instance of a Docker container:
+# Docker on Windows
 
 The following information largely pertains to Docker toolbox and older versions of Windows (i.e. Windows 7/8). Working on a VPN may cause problems for Docker machine, especially if LAN communication is disabled due to firewall. If LAN communication cannot be enabled or there is still a problem, a possible work around is to [forward the port as follows](https://www.iancollington.com/docker-and-cisco-anyconnect-vpn/ "forward the port as follows"):
 

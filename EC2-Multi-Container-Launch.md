@@ -7,21 +7,24 @@ There are two genral approaches to launching a multi-container application on an
 ---
 ### Setting up AWS tools
 
-For the AWS route, the [ECS-CLI](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html), and maybe AWS-CLI, will be needed. The instructions for configuring the ECS-CLI can be found [here](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_Configuration.html), and largely boils down to two steps:
+For the AWS route, the [ECS-CLI](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html), and maybe AWS-CLI, will need to be installed. The instructions for configuring the ECS-CLI can be found [here](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_Configuration.html), and largely boils down to two steps:
 
 1) Set-up credentials:
+
 `ecs-cli configure profile --profile-name profile_name --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY`
 
 2) Define cluster configurations:
+
 `ecs-cli configure --cluster cluster_name --default-launch-type launch_type --region region_name --config-name config_name`
 
 With this, we can now launch an EC2 instance using:
+
 `ecs-cli up --keypair id_rsa --capability-iam --size 1 --instance-type t2.micro --cluster-config config_name`
 
 Additional paramters can be found [here](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cmd-ecs-cli-up.html), but the above can be used to launch a single t2.micro cluster with id_rsa used as the keypair for SSH&#39;ing into the instance. The name of the keypair should be found in `EC2 > Network & Security > Key Pairs`. With this, an instance should now be up and running and ready for application deployment. Note that the above can be performed in the AWS console as well.
 
-----
-### Deployment Through ECS-CLI
+---
+### Deployment through ECS-CLI
 
 To deploy a multi-container application, a Docker compose YAML file will be required. When creating the YAML file, note that there are a number of commands unavailable when deploying with ECS-CLI, which is disclosed in the [AWS ECS-CLI tutorial](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html). Most notably, "build" is missing. Likewise, if using the Docker compose version 3 format, "network" is also missing, so users will have to default to using links.
 
@@ -54,11 +57,11 @@ Aside from the above, everything else is fairly standard. Because "build" is not
 
 If using the Docker compose version 3 format for the YAML file, AWS will also require users to include an [ecs-params.yml file](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cmd-ecs-cli-compose-ecsparams.html) which will specify arguments for memory limits and cpu usage limitations that would typically be provided when setting up tasks.
 
-When the YAML file is ready, the task can be launched via
+When the YAML file is ready, the task can be launched via:
 
 `ecs-cli compose up --create-log-groups --cluster-config config_name`
 
-A quick checking using 
+A quick checking using:
 
 `ecs-cli ps` or `ecs-cli ps --cluster-config config_name`
 
@@ -66,17 +69,17 @@ should let you know if everything looks fine. If needed, it is always possible t
 
 `ecs-cli compose --file hello-world.yml down --cluster-config config_name`
 
-before initiating a service with
+before initiating a service with:
 
 `ecs-cli compose --file docker-compose.yml scale 1 --cluster-config config_name`
 
 Additional service setting parameters can be found [here](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cmd-ecs-cli-compose-service-up.html).
 
 #### Is the ECS-CLI necessary?
-No. The "ecs-cli compose up" command fills out the task definitions, which can be seen on the AWS console under ECS > Task Definitions. That being said, it is quicker than filling it out by hand. In comparison, setting up a service on the AWS console is super quick. For one or two services, it may be quicker to just fill it out on the console itself.
+No. The "ecs-cli compose up" command fills out the task definitions, which can be seen on the AWS console under `ECS > Task Definitions`. That being said, it is quicker than filling it out by hand. In comparison, setting up a service on the AWS console is super quick. For one or two services, it may be quicker to just fill it out on the console itself.
 
 ----
-### General steps to launching without ECS-CLI
+### General steps to launching an application without using ECS-CLI
 If, for some reason, using ECS-CLI is not possible, then everything can be done within the instance itself. To start, launch an instance by going through `Services > EC2 > Instances > Launch instance`. Alternatively, if ECS-CLI is already installed, an instance can be launched as descibed above. 
 
 After launching an instance, [SSH into the instance](https://github.com/atcsrepo/Misc-notes/blob/master/EC2-SSH.md) and check that:
@@ -95,7 +98,7 @@ If using the AWS repo, the IAM settings may need to be re-configured if the foll
 An error occurred (AccessDeniedException) when calling the DescribeRepositories operation: User: arn:aws:sts::298398473745:assumed-role/amazon-ecs-cli-setup-portfolio-EcsInstanceRole-CDO71NCWWT8H/i-0102760df7837c852 is not authorized to perform: ecr:DescribeRepositories on resource: *
 ```
 
-To do so, under an Admin account on the AWS console, go to IAM > Roles. Select the role in question and attach the required ECR policy to provide access to the repo. Otherwise, just pull in the YAML file, and any other required files, and use docker-compose up.
+To do so, under an Admin account on the AWS console, go to `IAM > Roles`. Select the role in question and attach the required ECR policy to provide access to the repo. Otherwise, just pull in the YAML file, and any other required files, and use docker-compose up.
 
 #### Mimicking AWS tasks and services
 While it will not be exactly the same, it is possible to mimic some of the functionalities from AWS task definitions and services; however, this will depend to some extent on whether Docker compose version 2 or 3 format is being used.

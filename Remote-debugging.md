@@ -1,4 +1,4 @@
-### Remote Debugging Android Chrome/Firefox on Windows
+# Remote Debugging Android Chrome/Firefox on Windows
 
 While there is a guide from Google on how to [remote debug](https://developers.google.com/web/tools/chrome-devtools/remote-debugging/), they have failed to mention the need for ADB (Android Debug Bridge) and proper drivers. Likewise, Firefox appears to need ADB and the associated drivers as well.
 

@@ -1,4 +1,4 @@
-### Basic AWS deployment
+# Basic AWS deployment
 
 This section largely pertains to deploying a single Dockerized Node.js application to an AWS EC2 instance, which is relatively straight forward.
 

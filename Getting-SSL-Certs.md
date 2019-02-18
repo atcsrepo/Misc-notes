@@ -17,7 +17,7 @@ As such, a Nginx container and a Certbot container will need to share a resource
 ----
 ### Setting Nginx up for the challenge
 
-Nginx will fail to start if SSL is enabled no certificates are present. There are two options to get around this. First, just configure the `nginx.conf` file so that Nginx only listens on port 80 to begin with. In other words, leave out everything that involves https/port 443. After Certbot acquires the staging or production certificates, update `nginx.conf` to include re-directing to https and reload the proxy. At this point, Nginx should run normally.
+Nginx will fail to start if SSL is enabled and no certificates are present. There are two options to get around this. First, just configure the `nginx.conf` file so that Nginx only listens on port 80 to begin with. In other words, leave out everything that involves HTTPS/port 443. After Certbot acquires the staging or production certificates, update `nginx.conf` to include re-directing to https and reload the proxy. At this point, Nginx should run normally.
 
 Alternatively, it is also possible to generate [self-signed certificates](https://stackoverflow.com/questions/10175812/how-to-create-a-self-signed-certificate-with-openssl "self-signed certificates") for set-up purposes, then remove the invalid certificates and restart Nginx after Certbot generates valid certificates.
 
@@ -58,7 +58,7 @@ services:
             - /var/lib/letsencrypt:/var/lib/letsencrypt
         entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 ```
-Note the start up scripts that are used for Nginx and Cerbot. Certbot will wake up every 12h to check certicates while Nginx will re-load itself every 6 hrs. After setting up the YAML file, check the `nginx.conf` file and edit the server block to allow for listening on port 80 and do not enable HTTPS. For example:
+Note the start up scripts that are used for Nginx and Cerbot. Certbot will wake up every 12h to check certicates while Nginx will re-load itself every 6 hrs. After setting up the YAML file, check the `nginx.conf` file and edit the server block to allow for listening on port 80 only; likewise, disable/remove anything HTTPS-related. For example:
 
 ```
 server {
@@ -76,12 +76,12 @@ server {
     }
 ```
 Start up the containers with `docker-compose` or some equivalent and confirm that everything is running properly using `ecs ps` or `docker ps`. 
-In order to test Certbot and the Nginx, we will need to SSH into the EC2 instance and run Docker like so:
+In order to test Certbot and the Nginx, we will need to SSH into the EC2 instance and run Certbot like so:
 
 ```
 docker run -v  /var/www/html:/var/www/html -v /etc/letsencrypt:/etc/letsencrypt -v /var/lib/letsencrypt:/var/lib/letsencrypt certbot/certbot certonly --webroot --webroot-path=/var/www/html --register-unsafely-without-email --agree-tos --no-eff-email --staging -d example.com  -d www.example.com
 ```
-If registering with an e-mail, use `--email someone@example.com` instead of `--register-unsafely-without-email`. If everthing is configured properly, there should be a congratulatory message, like the following:
+If registering with an e-mail, use `--email someone@example.com` instead of `--register-unsafely-without-email`. Likewise, add or remove additional domains as needed. If everthing is configured properly, there should be a congratulatory message, like the following:
 ```
 certbot_1  |  - Congratulations! Your certificate and chain have been saved at:
 certbot_1  |    /etc/letsencrypt/live/example.com/fullchain.pem
@@ -92,7 +92,7 @@ certbot_1  |    version of this certificate in the future, simply run certbot
 certbot_1  |    again. To non-interactively renew *all* of your certificates, run
 certbot_1  |    "certbot renew"
 ```
-At this point, update the nginx.conf file to include re-directing:
+At this point, update the nginx.conf file to include HTTPS re-directing:
 ```
 server {
         listen 80;
@@ -130,4 +130,4 @@ docker run -v  /var/www/html:/var/www/html -v /etc/letsencrypt:/etc/letsencrypt 
 ```
 within the EC2 instance to replace the staging certificates with production certificates. 
 
-Restart Nginx again and requests should now be re-directed to an HTTPS address with a valid certificate. The renewal and reloading process should take place automatically with the provided entrypoint and command scripts provided in the YAML file, so there&#39;s no need to schedule a task.
+Restart Nginx again and HTTP requests should now be re-directed to an HTTPS address with a valid certificate. The SSL renewal and reloading process should take place automatically with the provided entrypoint and command scripts provided in the YAML file, so there&#39;s no need to schedule a task.

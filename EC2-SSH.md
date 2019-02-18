@@ -1,4 +1,4 @@
-### SSH into AWS EC2 instances on Windows
+# SSH into AWS EC2 instances on Windows
 
 This section describes how to perform an SSH into an EC2 instance from a Windows machine.
 
